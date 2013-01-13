@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -27,6 +28,53 @@ class dint
 		l = z;
 		c = ch;
 	}
+
+	bool operator<(const dint& rhs) const
+	{
+		if (l < rhs.l)
+		{
+			return true;
+		}
+		else if (l > rhs.l)
+		{
+			return false;
+		}
+		else
+		{
+			if (b < rhs.b)
+			{
+				return true;
+			}
+			else if (b < rhs.b)
+			{
+				return false;
+			}
+			else
+			{
+				if (a < rhs.a)
+				{
+					return true;
+				}
+				else if (a < rhs.a)
+				{
+					return false;
+				}
+				else
+				{
+					return false;
+				}
+			}
+		}
+	}
+
+	bool operator==(const dint& rhs) const
+	{
+		if (l == rhs.l && b == rhs.b && a == rhs.a)
+		{
+			return true;
+		}
+		return false;
+	}
 };
 
 int max(int a, int b)
@@ -41,22 +89,31 @@ int max(int a, int b)
 	}
 }
 
-vector<dint> reduce(const vector<dint>& input)
+vector<dint> reduce(const vector<dint>& temp)
 {
 	vector<dint> output;
+	vector<dint> input = temp;
+/*
+	int lastx = input[input.size()-1].a + 1;
+	int lasty = input[input.size()-1].b + 1;
+*/
 	int lastx = -1;
 	int lasty = -1;
 	int i;
 
+	sort(input.begin(), input.end());
+
 	for (i = 0; i < (int)input.size(); i++)
 	{
+		cout << input[i].a << "\t" << input[i].b << "\t" << input[i].l << "\t" << input[i].c; 
 		if (input[i].a > lastx && input[i].b > lasty)
 		{
 			output.push_back(input[i]);
 			lastx = input[i].a;
 			lasty = input[i].b;
-			cout << input[i].a << "\t" << input[i].b << "\t" << input[i].l << "\t" << input[i].c << endl; 
+			cout << "\t" << input[i].c; 
 		}
+		cout << endl; 
 	}
 
 	return output;
