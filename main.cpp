@@ -10,19 +10,22 @@ class dint
 	int a;
 	int b;
 	int l;
+	char c;
 
 	dint()
 	{
 		a = 0;
 		b = 0;
 		l = 0;
+		c = ' ';
 	}
 
-	dint(int x, int y, int z)
+	dint(int x, int y, int z, char ch)
 	{
 		a = x;
 		b = y;
 		l = z;
+		c = ch;
 	}
 };
 
@@ -38,7 +41,28 @@ int max(int a, int b)
 	}
 }
 
-vector<dint> byte_lcs(const string& left, const string& right)
+vector<dint> reduce(const vector<dint>& input)
+{
+	vector<dint> output;
+	int lastx = -1;
+	int lasty = -1;
+	int i;
+
+	for (i = 0; i < (int)input.size(); i++)
+	{
+		if (input[i].a > lastx && input[i].b > lasty)
+		{
+			output.push_back(input[i]);
+			lastx = input[i].a;
+			lasty = input[i].b;
+			cout << input[i].a << "\t" << input[i].b << "\t" << input[i].l << "\t" << input[i].c << endl; 
+		}
+	}
+
+	return output;
+}
+
+vector<dint> overlap_list(const string& left, const string& right)
 {
 	int i, j;
 	int *clist = new int[right.length()];
@@ -65,7 +89,7 @@ vector<dint> byte_lcs(const string& left, const string& right)
 				{
 					clist[j] = plist[j-1] + 1;
 				}
-				cout << i << " " << j << " " << clist[j] << right.at(j) << endl;
+				output.push_back(dint(i,j,clist[j],right.at(j)));
 			}
 			else
 			{
@@ -89,5 +113,5 @@ vector<dint> byte_lcs(const string& left, const string& right)
 
 int main(int argc, char** argv)
 {
-	byte_lcs("this is not a string", "this is a better string");
+	reduce(overlap_list("this is not a string", "this is a better string"));
 }
