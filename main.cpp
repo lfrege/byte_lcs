@@ -12,6 +12,7 @@ class dint
 	int b;
 	int l;
 	char c;
+	bool done;
 
 	dint()
 	{
@@ -19,6 +20,7 @@ class dint
 		b = 0;
 		l = 0;
 		c = ' ';
+		done = false;
 	}
 
 	dint(int x, int y, int z, char ch)
@@ -27,6 +29,7 @@ class dint
 		b = y;
 		l = z;
 		c = ch;
+		done = false;
 	}
 
 	bool operator<(const dint& rhs) const
@@ -91,29 +94,69 @@ int max(int a, int b)
 
 vector<dint> reduce(const vector<dint>& temp)
 {
+	int maxl=0;
 	vector<dint> output;
 	vector<dint> input = temp;
-/*
-	int lastx = input[input.size()-1].a + 1;
-	int lasty = input[input.size()-1].b + 1;
-*/
-	int lastx = -1;
-	int lasty = -1;
+	vector<int> stack;
+	bool foundone;
+	bool exitloop = false;
+
 	int i;
 
 	sort(input.begin(), input.end());
 
 	for (i = 0; i < (int)input.size(); i++)
 	{
-		cout << input[i].a << "\t" << input[i].b << "\t" << input[i].l << "\t" << input[i].c; 
-		if (input[i].a > lastx && input[i].b > lasty)
+		if (input[i].l > maxl)
 		{
-			output.push_back(input[i]);
-			lastx = input[i].a;
-			lasty = input[i].b;
-			cout << "\t" << input[i].c; 
+			maxl = input[i].l;
 		}
-		cout << endl; 
+	}
+
+	while (!exitloop)
+	{
+		if (stack.empty())
+		{
+			for (i = 0; i < (int)input.size(); i++)
+			{
+				if (!input[i].done)
+				{
+					stack.push_back(i);
+					i = input.size();
+				}
+			}
+		}
+
+		foundone = false;
+
+		for (i = stack.back(); i < (int)input.size()
+			&& input[i].l <= input[stack.back()].l + 1; i++)
+		{
+			if (!input[i].done
+				&& input[i].a > input[stack.back()].a
+				&& input[i].b > input[stack.back()].b
+				&& input[i].l > input[stack.back()].l)
+			{
+				foundone = true;
+				stack.push_back(i);
+				i = input.size();
+			}
+		}
+
+		if (!foundone)
+		{
+			input[stack.back()].done = true;
+			stack.pop_back();
+		}
+		if ((int)stack.size() == maxl)
+		{
+			exitloop = true;
+		}
+	}
+
+	for (i = 0; i < (int)stack.size(); i++)
+	{
+		output.push_back(input[stack[i]]);
 	}
 
 	return output;
@@ -170,5 +213,12 @@ vector<dint> overlap_list(const string& left, const string& right)
 
 int main(int argc, char** argv)
 {
-	reduce(overlap_list("this is not a string", "this is a better string"));
+	int i;
+	vector<dint> lcs = reduce(overlap_list("this is not a string", "this is a better string"));
+	for (i = 0; i < (int)lcs.size(); i++)
+	{
+		cout << lcs[i].a << "\t" << lcs[i].b << "\t" << lcs[i].l << "\t" << lcs[i].c << endl;
+	}
+
+	return 0;
 }
