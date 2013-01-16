@@ -211,14 +211,68 @@ vector<dint> overlap_list(const string& left, const string& right)
 	return output;
 }
 
-int main(int argc, char** argv)
+string hexPair(int input)
 {
-	int i;
-	vector<dint> lcs = reduce(overlap_list("this is not a string", "this is a better string"));
+	string output;
+	int low = input & 0xf;
+	int high = (input & 0xf0) >> 4;
+
+	output += (char)(high + '0');
+	output += (char)(low + '0');
+
+	return output;
+}
+
+string HTMLSafe(char ch)
+{
+	string output;
+	if (ch >= 'a' && ch <= 'z') { output = ch; }
+	else if (ch >= 'A' && ch <= 'Z') { output = ch; }
+	else if (ch >= '0' && ch <= '9') { output = ch; }
+	else if (ch == '<') { output = "&lt;"; }
+	else if (ch == '>') { output = "&gt;"; }
+	else
+	{
+		output = "\\x" + hexPair(ch);
+	}
+	return output;
+}
+
+
+string inverseColoredLCS(const vector<dint>& lcs, const string& left, const string& right)
+{
+	int i = 0;
+	string output;
+
 	for (i = 0; i < (int)lcs.size(); i++)
 	{
-		cout << lcs[i].a << "\t" << lcs[i].b << "\t" << lcs[i].l << "\t" << lcs[i].c << endl;
+		if (lcs[i].a != lcs[i+1].a - 1 && lcs[i].b != lcs[i+1].b - 1)
+		{
+			if (left.substr(lcs[i].a, lcs[i+1].a - lcs[i].a) != right.substr(lcs[i].b, lcs[i+1].b - lcs[i].b)) 
+			{
+				output += "<font color=\"green\">" + right.substr(lcs[i].b, lcs[i+1].b - lcs[i].b) + "</font>";
+				output += "<font color=\"red\">" + left.substr(lcs[i].a, lcs[i+1].a - lcs[i].a) + "</font>";
+			}
+		}
+		else if (lcs[i].a != lcs[i+1].a - 1)
+		{
+			output += "<font color=\"red\">" + left.substr(lcs[i].a, lcs[i+1].a - lcs[i].a) + "</font>";
+		}
+		else if (lcs[i].b != lcs[i+1].b - 1)
+		{
+			output += "<font color=\"green\">" + right.substr(lcs[i].b, lcs[i+1].b - lcs[i].b) + "</font>";
+		}
+		output += HTMLSafe(lcs[i].c);
 	}
+
+	return output;
+}
+
+int main(int argc, char** argv)
+{
+	vector<dint> lcs = reduce(overlap_list( "th<is is not a string", "this is a better string"));
+
+	cout << inverseColoredLCS(lcs, "th<is is not a string", "this is a better string") << endl;
 
 	return 0;
 }
