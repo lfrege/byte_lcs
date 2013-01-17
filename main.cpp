@@ -217,8 +217,12 @@ string hexPair(int input)
 	int low = input & 0xf;
 	int high = (input & 0xf0) >> 4;
 
-	output += (char)(high + '0');
-	output += (char)(low + '0');
+	cerr << endl << endl << low << endl << endl;
+
+	if (high <= 9){output += (char)(high + '0');}
+	else {output += (char)(high + 'A' - 10);}
+	if (low <= 9){output += (char)(low + '0');}
+	else {output += (char)(low + 'A' - 10);}
 
 	return output;
 }
@@ -286,10 +290,47 @@ string inverseColoredLCS(const vector<dint>& lcs, const string& left, const stri
 	return output;
 }
 
+bool readAll(const string& filename, string& output)
+{
+	char buffer[501];
+	ifstream ifs;
+	ifs.open(filename.c_str());
+
+	if (ifs.is_open())
+	{
+		do
+		{
+			ifs.read(buffer, 500);
+			output += buffer;
+		} while(!ifs.eof() && !ifs.bad());
+
+		return true;
+	}
+	else
+	{
+		cerr << "Error: could not read from file: " << filename << endl;
+		return false;
+	}
+}
+
 int main(int argc, char** argv)
 {
-	string a = "thi<fake tag in the middle>s is ne a string";
-	string b = "this is not a string";
+	string a;
+	string b;
+
+	if (argc != 3)
+	{
+		cerr << "Error: requires 2 file names" << endl;
+		return -1;
+	}
+	else if (!readAll(argv[1], a))
+	{
+		return -1;
+	}
+	else if (!readAll(argv[2], b))
+	{
+		return -1;
+	}
 
 	vector<dint> lcs = reduce(overlap_list(a,b));
 
