@@ -226,11 +226,13 @@ string hexPair(int input)
 string HTMLSafe(char ch)
 {
 	string output;
-	if (ch >= 'a' && ch <= 'z') { output = ch; }
-	else if (ch >= 'A' && ch <= 'Z') { output = ch; }
-	else if (ch >= '0' && ch <= '9') { output = ch; }
+
+	if (ch == ' ' || ch == '\t') { output = ch; }
 	else if (ch == '<') { output = "&lt;"; }
 	else if (ch == '>') { output = "&gt;"; }
+	else if (ch == '&') { output = "&amp;"; }
+	else if (ch >= ']' && ch <= '~') { output = ch; }
+	else if (ch >= '!' && ch <= '[') { output = ch; }
 	else
 	{
 		output = "\\x" + hexPair(ch);
@@ -238,29 +240,45 @@ string HTMLSafe(char ch)
 	return output;
 }
 
+string HTMLSafe(const string& input)
+{
+	string output;
+	int i;
+
+	for (i = 0; i < (int)input.length(); i++)
+	{
+		output += HTMLSafe(input.c_str()[i]);
+	}
+
+	return output;
+}
 
 string inverseColoredLCS(const vector<dint>& lcs, const string& left, const string& right)
 {
 	int i = 0;
+	string leftsub, rightsub; 
 	string output;
 
-	for (i = 0; i < (int)lcs.size(); i++)
+	output += HTMLSafe(lcs[0].c);
+	for (i = 1; i < (int)lcs.size(); i++)
 	{
-		if (lcs[i].a != lcs[i+1].a - 1 && lcs[i].b != lcs[i+1].b - 1)
+		leftsub = HTMLSafe(left.substr(lcs[i-1].a + 1, lcs[i].a - lcs[i-1].a - 1));
+		rightsub = HTMLSafe(right.substr(lcs[i-1].b + 1, lcs[i].b - lcs[i-1].b - 1));
+		if (lcs[i].a != lcs[i-1].a + 1 && lcs[i].b != lcs[i-1].b + 1)
 		{
-			if (left.substr(lcs[i].a, lcs[i+1].a - lcs[i].a) != right.substr(lcs[i].b, lcs[i+1].b - lcs[i].b)) 
+			if (leftsub != rightsub)
 			{
-				output += "<font color=\"green\">" + right.substr(lcs[i].b, lcs[i+1].b - lcs[i].b) + "</font>";
-				output += "<font color=\"red\">" + left.substr(lcs[i].a, lcs[i+1].a - lcs[i].a) + "</font>";
+				output += "<font color=\"green\">" + rightsub + "</font>";
+				output += "<font color=\"red\">" + leftsub + "</font>";
 			}
 		}
-		else if (lcs[i].a != lcs[i+1].a - 1)
+		else if (lcs[i].a != lcs[i-1].a + 1)
 		{
-			output += "<font color=\"red\">" + left.substr(lcs[i].a, lcs[i+1].a - lcs[i].a) + "</font>";
+			output += "<font color=\"red\">" + leftsub + "</font>";
 		}
-		else if (lcs[i].b != lcs[i+1].b - 1)
+		else if (lcs[i].b != lcs[i-1].b + 1)
 		{
-			output += "<font color=\"green\">" + right.substr(lcs[i].b, lcs[i+1].b - lcs[i].b) + "</font>";
+			output += "<font color=\"green\">" + rightsub + "</font>";
 		}
 		output += HTMLSafe(lcs[i].c);
 	}
@@ -270,9 +288,12 @@ string inverseColoredLCS(const vector<dint>& lcs, const string& left, const stri
 
 int main(int argc, char** argv)
 {
-	vector<dint> lcs = reduce(overlap_list( "th<is is not a string", "this is a better string"));
+	string a = "thi<fake tag in the middle>s is ne a string";
+	string b = "this is not a string";
 
-	cout << inverseColoredLCS(lcs, "th<is is not a string", "this is a better string") << endl;
+	vector<dint> lcs = reduce(overlap_list(a,b));
+
+	cout << inverseColoredLCS(lcs, a, b) << endl;
 
 	return 0;
 }
