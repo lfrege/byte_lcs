@@ -217,8 +217,6 @@ string hexPair(int input)
 	int low = input & 0xf;
 	int high = (input & 0xf0) >> 4;
 
-	cerr << endl << endl << low << endl << endl;
-
 	if (high <= 9){output += (char)(high + '0');}
 	else {output += (char)(high + 'A' - 10);}
 	if (low <= 9){output += (char)(low + '0');}
@@ -232,6 +230,7 @@ string HTMLSafe(char ch)
 	string output;
 
 	if (ch == ' ' || ch == '\t') { output = ch; }
+	else if (ch == '\n') { output = "<br/>\n"; }
 	else if (ch == '<') { output = "&lt;"; }
 	else if (ch == '>') { output = "&gt;"; }
 	else if (ch == '&') { output = "&amp;"; }
@@ -292,16 +291,16 @@ string inverseColoredLCS(const vector<dint>& lcs, const string& left, const stri
 
 bool readAll(const string& filename, string& output)
 {
-	char buffer[501];
+	char ch;
 	ifstream ifs;
-	ifs.open(filename.c_str());
+	ifs.open(filename.c_str(), ios::binary);
 
 	if (ifs.is_open())
 	{
 		do
 		{
-			ifs.read(buffer, 500);
-			output += buffer;
+			ifs.get(ch);
+			if (!ifs.eof() && !ifs.bad()) {output += ch;}
 		} while(!ifs.eof() && !ifs.bad());
 
 		return true;
